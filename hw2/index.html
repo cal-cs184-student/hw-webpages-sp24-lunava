@@ -1,7 +1,353 @@
-<html>
-	<head>
-	</head>
-	<body>
-		Homework 2 index.html here
-	</body>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<style>
+  body {
+    background-color: white;
+    padding: 100px;
+    width: 1000px;
+    margin: auto;
+    text-align: left;
+    font-weight: 300;
+    font-family: 'Open Sans', sans-serif;
+    color: #121212;
+  }
+  h1, h2, h3, h4 {
+    font-family: 'Source Sans Pro', sans-serif;
+  }
+  kbd {
+    color: #121212;
+  }
+</style>
+<title>CS 184 Mesh Edit</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link href="https://fonts.googleapis.com/css?family=Open+Sans|Source+Sans+Pro" rel="stylesheet">
+
+<script>
+  MathJax = {
+    tex: {
+      inlineMath: [['$', '$'], ['\\(', '\\)']]
+    }
+  };
+</script>
+<script id="MathJax-script" async
+  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js">
+</script>
+
+</head>
+
+
+<body>
+
+<h1 align="middle">CS 184: Computer Graphics and Imaging, Spring 2018</h1>
+<h1 align="middle">Project 2: Mesh Edit</h1>
+<h2 align="middle">Luis Navarrete Rios & Angel Rodriguez</h2>
+<h2 align="middle">https://cal-cs184-student.github.io/hw-webpages-sp24-lunava/hw2/index.html</h2>
+<br><br>
+
+<div>
+
+<h2 align="middle">Overview</h2>
+<p>
+    Going into the next level, this project revolves geometric manipulation and modeling using various algorithms such Casteljau.
+    With these methods, this program is able to render and model objects as a collection of triangle meshes (represented by the half-edge
+    data structure). As we refine the meshes through various operations, such as changes the root edge of neighboring triangles and splitting the triangles,
+    the surface of objects become more and mores smoother, with rough edges becoming reduced.
+</p>
+<br>
+
+
+<h2 align="middle">Section I: Bezier Curves and Surfaces</h2>
+
+<h3 align="middle">Part 1: Bezier Curves with 1D de Casteljau Subdivision</h3>
+
+
+<b>
+  Briefly explain de Casteljau's algorithm and how you implemented it in order to evaluate Bezier curves.
+</b>
+<p>
+    De Casteljau's algorithm allows the rendering of curves through the interpolation of multiple lines. The algorithm interpolates along
+    multiple lines (the distance between lines based off a parameter t) splitting each line into smaller segments recursively until it reaches
+    a point that approximates a curve.
+</p>
+<br>
+
+
+<b>
+  Take a look at the provided .bzc files and create your own Bezier curve with 6 control points of your choosing. Use this Bezier curve for your screenshots below.
+</b>
+
+<br>
+
+<b>
+  Show screenshots of each step / level of the evaluation from the original control points down to the final evaluated point. Press <kbd>E</kbd> to step through. Toggle <kbd>C</kbd> to show the completed Bezier curve as well.
+</b>
+<!-- Example of including multiple figures -->
+<div align="middle">
+  <table style="width:100%">
+    <tr align="center">
+      <td>
+        <img src="images/c1.png" align="middle" width="400px"/>
+        <figcaption>Level 0</figcaption>
+      </td>
+      <td>
+        <img src="images/c2.png" align="middle" width="400px"/>
+        <figcaption>Level 1</figcaption>
+      </td>
+    </tr>
+    <br>
+    <tr align="center">
+      <td>
+        <img src="images/c3.png" align="middle" width="400px"/>
+        <figcaption>Level 2</figcaption>
+      </td>
+      <td>
+        <img src="images/c4.png" align="middle" width="400px"/>
+        <figcaption>Level 3</figcaption>
+      </td>
+    </tr>
+    <br>
+    <tr align="center">
+      <td>
+        <img src="images/c5.png" align="middle" width="400px"/>
+        <figcaption>Level 4</figcaption>
+      </td>
+    </tr>
+  </table>
+</div>
+<br>
+
+
+<b>
+  Show a screenshot of a slightly different Bezier curve by moving the original control points around and modifying the parameter \(t\) via mouse scrolling.
+    <div align="middle">
+        <table style="width:100%">
+            <tr align="center">
+                <td>
+                    <img src="images/t1.png" align="middle" width="400px"/>
+                    <figcaption> Bezier curve with manually inputted points</figcaption>
+                </td>
+            </tr>
+        </table>
+    </div>
+</b>
+<br>
+
+
+<h3 align="middle">Part 2: Bezier Surfaces with Separable 1D de Casteljau</h3>
+<b>
+  Briefly explain how de Casteljau algorithm extends to Bezier surfaces and how you implemented it in order to evaluate Bezier surfaces.
+</b>
+<p>
+<!--    In the previous segment of the #You are the best... Nah just kidding, reach for the stars-->
+    In the previous segment, Bezier curves were used in the context of 2 dimensional structures, by using Casteljau algorithm, the program is able
+    to extend Bezier curves into 3 dimensional surfaces. The first step is to apply the algorithm in one parameter direction (u)
+    to all rows or columns of control points to get a set of points that define a Bezier curve in the other parameter direction (v).
+    Then, you apply the algorithm again in the v direction to find the final point on the surface at (u, v)
+</p>
+<br>
+
+
+<b>
+    <div align="middle">
+        <table style="width:100%">
+            <tr align="center">
+                <td>
+                    <img src="images/t2.png" align="middle" width="400px"/>
+                    <figcaption>Casteljau used to apply Bezier curves into surfaces</figcaption>
+                </td>
+            </tr>
+        </table>
+    </div></b>
+
+<br>
+
+
+<h2 align="middle">Section II: Triangle Meshes and Half-Edge Data Structure</h2>
+
+<h3 align="middle">Part 3: Area-Weighted Vertex Normals</h3>
+
+<b>
+For each vertex, the algorithm attempts gets the weighted values for faces that are incidental to the current vertex,
+    the weight of the incidental faces are proportional to the area of the face. Afterwards the algorithm finds the normal
+    of each face through the cross product of the root vertex. The final steps are summing each of the normals and then normalizing
+    the vector.
+</b>
+<p>
+</p>
+<br>
+
+
+<p>
+    <div align="middle">
+        <table style="width:100%">
+            <tr align="center">
+                <td>
+                    <img src="images/t3-1.png" align="middle" width="400px"/>
+                    <figcaption>Before</figcaption>
+                </td>
+                <td>
+                    <img src="images/t3-2.png" align="middle" width="400px"/>
+                    <figcaption>After</figcaption>
+                </td>
+            </tr>
+        </table>
+    </div>
+</p>
+<br>
+
+
+<h3 align="middle">Part 4: Edge Flip</h3>
+<b>
+</b>
+<p>
+   To begin understanding the algorithm, we first began drawing out a simple mesh (2 pairs of triangles or halfedge) and then visually
+    flipping the edge to see which vertices and edges are changed when the flip occurs. The algorithm works as follow: first check if the edge
+    being flipped is a boundary edge, if not each the surrounding edges and vertices and reassign the related halfedges based on the current orientation. Afterwards
+    update vertices, faces, and then update the neighboring halfedges.
+</p>
+<br>
+
+
+<p>
+    <div align="middle">
+        <table style="width:100%">
+            <tr align="center">
+                <td>
+                    <img src="images/t4.png" align="middle" width="400px"/>
+                    <figcaption>Teacup meshes with multiple edge flips</figcaption>
+                </td>
+            </tr>
+        </table>
+    </div></p>
+<br>
+
+
+
+<br>
+
+
+<h3 align="middle">Part 5: Edge Split</h3>
+<b>
+  Briefly explain how you implemented the edge split operation and describe any interesting implementation / debugging tricks you have used.
+</b>
+<p>
+ In order to implement edge split. We first made variables for all of the existing elements in the local mesh. Then we initialized all of the new
+    mesh elements that we will need. This involved 1 new vertex, 3 new edges, 6 new half-edges, and 2 new faces. We initialized the new elements with placeholder
+    attribute values in order to avoid any complications involving pointer assignments to ambiguous elements. We then start reassigning variable attributes of all
+    mesh elements (both new and old) accordingly. We finally return the newly made vertex.
+</p>
+<br>
+
+
+<b>
+</b>
+<p>
+    <div align="middle">
+        <table style="width:100%">
+            <tr align="center">
+                <td>
+                    <img src="images/t5.png" align="middle" width="400px"/>
+                    <figcaption>Before</figcaption>
+                </td>
+
+            </tr>
+        </table>
+    </div>
+    </p>
+<br>
+
+
+<b>
+</b>
+<p>
+    <div align="middle">
+        <table style="width:100%">
+            <tr align="center">
+                <td>
+                    <img src="images/t5-3.png" align="middle" width="400px"/>
+                    <figcaption>After</figcaption>
+                </td>
+
+            </tr>
+        </table>
+    </div></p>
+<br>
+
+
+<b>
+    Write about your eventful debugging journey, if you have experienced one.
+</b>
+<p>
+    We initially tried saving old elements and immediately trying to assign the proper pointers for new mesh elements. But it became very complicated
+    since some elements did not exist yet or some information stored in elements were not representative of the new mesh structure. We solved this by simply
+    putting placeholder attribute in the new elements, and then modifying the pointers according to the new mesh structure afterwards.
+</p>
+<br>
+
+
+<b>
+    If you have implemented support for boundary edges, show screenshots of your implementation properly handling split operations on boundary edges.
+</b>
+    <p>
+        We did not implement support for boundary edges.
+    </p>
+<br>
+
+
+<h3 align="middle">Part 6: Loop Subdivision for Mesh Upsampling</h3>
+<b>
+</b>
+<p>
+    Following the direction of lecture, the algorithm actually updates vertex positions before subdividing the meshes into 4-1. Afterwards, the algorithm
+    also finds the new position of the edges based on the surrounding vertices. Since the algorithm manipulates edges, we store the old edges in order
+    to keep manipulating the edges while iterating through each incidental edge. The algorithm splits every edge, from this midpoint that is generated
+    we flag that vertex and edge as a new vertex and edge. The final steps are flipping any new edges and updating the position of the vertices.
+</p>
+<br>
+
+
+
+<p>
+    <div align="middle">
+        <table style="width:100%">
+            <tr align="center">
+                <td>
+                    <img src="images/t6-1.png" align="middle" width="400px"/>
+                    <figcaption>Level 0</figcaption>
+                </td>
+                <td>
+                    <img src="images/t6-2.png" align="middle" width="400px"/>
+                    <figcaption>Level 1</figcaption>
+                </td>
+            </tr>
+            <br>
+            <tr align="center">
+                <td>
+                    <img src="images/t6-3.png" align="middle" width="400px"/>
+                    <figcaption>Level 2</figcaption>
+                </td>
+                <td>
+                    <img src="images/t6-4.png" align="middle" width="400px"/>
+                    <figcaption>Level 3</figcaption>
+                </td>
+            </tr>
+            <br>
+            <tr align="center">
+                <td>
+                    <img src="images/t6-5.png" align="middle" width="400px"/>
+                    <figcaption>Preprocessing with flips and splits</figcaption>
+                </td>
+            </tr>
+        </table>
+    </div></p>
+    <p> As the upsampling increases, the edges become smoother. This can be seen in specially in image 5 where the cube intially had very sharp edges.</p>
+<br>
+
+
+
+
+
+
+</body>
 </html>
